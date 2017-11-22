@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <conio.h>
 #include <time.h>
-#include <Windows.h>
+#include <windows.h>
+#include <gl\GL.h>
 #include "draw.h"
 
 #define ROWS 4
