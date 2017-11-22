@@ -1,66 +1,60 @@
 #include <stdio.h>
 #include <conio.h>
-#include <time.h>
 #include <windows.h>
-#include <gl\GL.h>
+#include <GL\glut.h>
 #include "draw.h"
 
-#define ROWS 4
-#define COLUMNS 6
-#define LEFT 75
-#define RIGHT 77
+#define FPS 30
 
-const double FPS = 60;
-
-int *bricks[ROWS];
-int paddlePos;
+const int msPerFrame = 1000 / FPS;
 
 void init();
-void wait(clock_t *t);
+void paint();
+void resize(GLsizei width, GLsizei height);
+void gameMain(int value);
 
-int main() {
-	clock_t t = (clock() * 1000 / CLOCKS_PER_SEC);
-	int input;
-	init();
-	//hideCursor();
-	drawBricks(bricks, ROWS, COLUMNS);
-	drawPaddle(paddlePos);
-	while (1) {
-		//system("cls");
-		if (kbhit()) {
-			input = getch();
-			switch (input) {
-			case LEFT: 
-				movePaddle(&paddlePos, -1);
-				break;
-			case RIGHT:
-				movePaddle(&paddlePos, 1);
-				break;
-			}
-		}
-		wait(&t);
-	}
-	return 0;
-}
-
-// Initialize game variables
 void init() {
-	paddlePos = 40;
-	for (int i = 0; i < ROWS; i++)
-	{
-		bricks[i] = (int*)malloc(COLUMNS * sizeof(int));
-		for (int j = 0; j < COLUMNS; j++)
-		{
-			bricks[i][j] = 1;
-		}
-	}
+	setBackgroundColor(BLACK);
 }
 
-// Limit frame rate
-void wait(clock_t *t) {
-	clock_t diff = (clock() * 1000 / CLOCKS_PER_SEC) - *t; // Calculate time elapsed in miliseconds
-	if (*t < 1000 / FPS) { // If time elapsed is less than time per frame
-		Sleep((1000 / FPS) - *t); // Sleep for remaining time
-	}
-	*t = (clock() * 1000 / CLOCKS_PER_SEC); // Set new time
+void paint() {
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	/* Draw all objects here */
+	setColor(RED);
+	drawRect(100.0f, 100.0f, 50.0f, 20.0f);
+
+	glutSwapBuffers();
+}
+
+void resize(GLsizei width, GLsizei height) {
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, width, height, 0);
+}
+
+void gameMain(int value) {
+	/* Input game logic here */
+
+	glutPostRedisplay();
+	glutTimerFunc(msPerFrame, gameMain, 0);
+}
+
+
+
+
+int main(int argc, char** argv) {
+	glutInit(&argc, argv);                 // Initialize GLUT
+	glutInitWindowSize(960, 480);   // Set the window's initial width & height
+	glutInitWindowPosition(100, 100); // Position the window's initial top-left corner
+	glutInitDisplayMode(GLUT_DOUBLE); // Use double buffering for smoother animations
+	glutCreateWindow("Breakout"); // Create a window with the given title
+	glutDisplayFunc(paint); // Register display callback handler for window re-paint
+	glutReshapeFunc(resize);
+	glutTimerFunc(0, gameMain, 0);
+	init();
+	glutMainLoop();           // Enter the event-processing loop
+	return 0;
 }
