@@ -4,15 +4,21 @@
 
 #define ESC 27
 
-#define FPS 30
+#define FPS 60
 
 const char *title = "Breakout";
 const int windowWidth = 960;
 const int windowHeight = 480;
 const int msPerFrame = 1000 / FPS;
 
+int paddleWidth = 50;
 int paddlePos = 200;
-int paddleSpeed = 5;
+int paddleSpeed = 15;
+
+int ballSpeedX = 2;
+int ballSpeedY = 2;
+int ballX = 200;
+int ballY = 300;
 
 void initializeGLUT(int argc, char **argv);
 void init();
@@ -53,9 +59,9 @@ void paint() {
 
 	/* Draw all objects here */
 	setColor(RED);
-	drawRect(paddlePos, 400, 50, 20);
+	drawRect(paddlePos, 400, paddleWidth, 20);
 	setColor(BLUE);
-	drawCirc(200, 200, 5);
+	drawCirc(ballX, ballY, 5);
 
 	glutSwapBuffers(); // Swap front and back buffer
 }
@@ -77,6 +83,14 @@ void resize(GLsizei width, GLsizei height) {
 */
 void gameMain(int value) {
 	/* Input game logic here */
+
+	if (ballX + ballSpeedX > windowWidth || ballX + ballSpeedX < 0)
+		ballSpeedX = -ballSpeedX;
+	ballX += ballSpeedX;
+	if (ballY + ballSpeedY > windowHeight || ballY + ballSpeedY < 0)
+		ballSpeedY = -ballSpeedY;
+	ballY += ballSpeedY;
+
 
 	glutPostRedisplay(); // Redraw screen
 	glutTimerFunc(msPerFrame, gameMain, 0); // Set timer to call this function again
@@ -101,10 +115,12 @@ void keyHandler(int key, int x, int y) {
 void specialKeyHandler(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_RIGHT:
-		paddlePos += paddleSpeed;
+		if (paddlePos + paddleWidth < windowWidth)
+			paddlePos += paddleSpeed;
 		break;
 	case GLUT_KEY_LEFT:
-		paddlePos -= paddleSpeed;
+		if (paddlePos > 0)
+			paddlePos -= paddleSpeed;
 		break;
 	}
 }
