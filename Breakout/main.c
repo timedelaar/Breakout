@@ -11,6 +11,9 @@ const int windowWidth = 960;
 const int windowHeight = 480;
 const int msPerFrame = 1000 / FPS;
 
+int paddlePos = 200;
+int paddleSpeed = 5;
+
 void initializeGLUT(int argc, char **argv);
 void init();
 void paint();
@@ -50,7 +53,8 @@ void paint() {
 
 	/* Draw all objects here */
 	setColor(RED);
-	drawRect(100, 100, 50, 20);
+	drawRect(paddlePos, 400, 50, 20);
+	setColor(BLUE);
 	drawCirc(200, 200, 5);
 
 	glutSwapBuffers(); // Swap front and back buffer
@@ -97,10 +101,10 @@ void keyHandler(int key, int x, int y) {
 void specialKeyHandler(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_RIGHT:
-
+		paddlePos += paddleSpeed;
 		break;
 	case GLUT_KEY_LEFT:
-
+		paddlePos -= paddleSpeed;
 		break;
 	}
 }
