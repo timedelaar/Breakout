@@ -40,6 +40,7 @@ void resize(GLsizei width, GLsizei height);
 void gameMain(int value);
 void keyHandler(int key, int x, int y);
 void specialKeyHandler(int key, int x, int y);
+void drawBricks();
 void fillScoreboard();
 void moveBall();
 void movePaddle(int direction);
@@ -147,7 +148,28 @@ int main(int argc, char** argv) {
 	glutMainLoop(); // Enter the event-processing loop
 	return 0;
 }
+/* Draw Bricks with different colors by calling drawRect function
+*/
+void drawBricks()
+{
+	int fieldX=20; // x coordinate of  starting point of a brick
+	int fieldY=20; // y coordinate of starting point of a brick
 
+	for (int i = 0; i < 7;i++)
+	{
+		// if statement gives the zig-zag pattern for bricks placement
+		if (i % 2 == 0) fieldX = 0;
+		else fieldX = 20;
+
+		setColor(i % 3 + 1, i % 2, i % 1); // sets different colors for lines
+
+		for (; fieldX < 700; fieldX += 70)
+			drawRect((fieldX )+ 20, (fieldY) +2, 50, 20); // x+10 gives the vertical space between the bricks
+		fieldY += 20;
+	fieldX += 5; // horizontal space between lines 
+	}
+
+}
 void fillScoreboard() {
 	char temp[100];
 	sprintf(temp, "Score: %d", score);

@@ -86,25 +86,3 @@ void setBackgroundColor(float r, float g, float b) {
 }
 
 
-/* Draw Bricks with different colors by calling drawRect function
-*/
-void drawBricks()
-{
-	int x; // x coordinate of  starting point of a brick
-	int y = 0; // y coordinate of starting point of a brick
-
-	for (int i = 0; i < 7; i++)
-	{
-		// if statement gives the zig-zag pattern for bricks placement
-		if (i % 2 == 0) x = 0;
-		else x = 30;
-
-		setColor(i%3+1, i%2, i%1); // sets different colors for lines
-
-		for (; x < 900; x += 70)
-			drawRect(x + 10, y + 2, 60, 20); // x+10 gives the vertical space between the bricks
-		y += 20;
-		y += 5; // horizontal space between lines 
-	}
-
-}
