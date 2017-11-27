@@ -4,6 +4,9 @@
 #include <GL\glut.h>
 #include "draw.h"
 
+#define ROWS 7
+#define COLS 10
+
 #define ESC 27
 
 #define FPS 60
@@ -27,6 +30,7 @@ int paddleSpeed = 15;
 
 const int brickWidth = 50;
 const int brickHeight = 20;
+int bricks[ROWS][COLS];
 
 int ballRadius = 5;
 int ballSpeed = 4;
@@ -74,6 +78,13 @@ void initializeGLUT(int argc, char **argv) {
 void init() {
 	setBackgroundColor(BLACK);
 	/* TODO: Start with random ball position and direction? */
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLS; j++)
+		{
+			bricks[i][j] = 1;
+		}
+	}
 }
 
 /* Paint function
@@ -159,20 +170,20 @@ int main(int argc, char** argv) {
 */
 void drawBricks()
 {
-	int brickX = fieldX; // x coordinate of  starting point of a brick
-	int brickY = fieldY; // y coordinate of starting point of a brick
-
-	for (int i = 0; i < 7;i++)
+	for (int i = 0; i < ROWS;i++)
 	{
 		// if statement gives the zig-zag pattern for bricks placement
-		brickX = (i % 2) * 20;
+		//brickX = (i % 2) * 20;
 
 		setColor(i % 3 + 1, i % 2, i % 1); // sets different colors for lines
 
-		for (; brickX < 700; brickX += 70)
-			drawRect(brickX + fieldX, brickY + 1, brickWidth, brickHeight); // x+10 gives the vertical space between the bricks
-		brickY += brickHeight;
-		brickX += 5; // horizontal space between lines 
+		for (int j = 0; j < COLS; j++) {
+			if (bricks[i][j] == 1) {
+				int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
+				int brickY = fieldY + i * brickHeight;
+				drawRect(brickX, brickY + 1, brickWidth, brickHeight); // x+10 gives the vertical space between the bricks
+			}
+		}
 	}
 
 }
@@ -192,10 +203,12 @@ int hitPaddle(int ballX, int ballY) {
 }
 
 int hitBrick(int ballX, int ballY) {
-	for (int i = 6; i >= 0; i--) {
-		if (ballY >= brickHeight * i + fieldY + 1 && ballY <= brickHeight * i + fieldY + brickHeight + 1) {
-			for (int j = 0; j < 12; j++) {
-				if (ballX >= j * (brickWidth + 25) + fieldX && ballX <= j * (brickWidth + 25) + fieldX + brickWidth) {
+	for (int i = ROWS - 1; i >= 0; i--) {
+		if (ballY >= fieldY + i * brickHeight + 1 && ballY <= fieldY + i * brickHeight + brickHeight + 1) {
+			for (int j = 0; j < COLS; j++) {
+				int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
+				if (ballX >= brickX && ballX <= brickX + brickWidth && bricks[i][j] == 1) {
+					bricks[i][j] = 0;
 					return 1;
 				}
 			}
