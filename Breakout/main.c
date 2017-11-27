@@ -12,7 +12,7 @@ const int windowHeight = 480;
 const int msPerFrame = 1000 / FPS;
 
 int paddlePos = 200;
-int paddleSpeed = 5;
+int paddleSpeed = 10;
 
 void initializeGLUT(int argc, char **argv);
 void init();
@@ -52,10 +52,13 @@ void paint() {
 	glClear(GL_COLOR_BUFFER_BIT); // Clear screen
 
 	/* Draw all objects here */
+	
+	drawBricks();
 	setColor(RED);
 	drawRect(paddlePos, 400, 50, 20);
 	setColor(BLUE);
 	drawCirc(200, 200, 5);
+	
 
 	glutSwapBuffers(); // Swap front and back buffer
 }
