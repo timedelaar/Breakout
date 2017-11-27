@@ -51,8 +51,8 @@ void keyHandler(int key, int x, int y);
 void specialKeyHandler(int key, int x, int y);
 void drawBricks();
 void fillScoreboard();
-int hitPaddle(int ballX, int ballY);
-int hitBrick(int ballX, int ballY);
+int hitPaddle();
+int hitBrick();
 void moveBall();
 void movePaddle(int direction);
 int sign(int val);
@@ -220,7 +220,13 @@ int hitTest(int ballX, int ballY, int brickX, int brickY, int brickWidth, int br
 }
 
 int hitPaddle() {
-	if (hitTest(ballX, ballY, paddleX, paddleY, paddleWidth, paddleHeight)) {
+	if (hitTest(ballX + ballSpeed * directionX, ballY + ballSpeed * directionY, paddleX, paddleY, paddleWidth, paddleHeight)) {
+		if (hitTest(ballX + ballSpeed * directionX, ballY, paddleX, paddleY, paddleWidth, paddleHeight)) {
+			directionX = -directionX;
+		}
+		if (hitTest(ballX, ballY + ballSpeed * directionY, paddleX, paddleY, paddleWidth, paddleHeight)) {
+			directionY = -directionY;
+		}
 		return 1;
 	}
 	return 0;
@@ -233,11 +239,11 @@ int hitBrick() {
 			int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
 			if (hitTest(ballX + ballSpeed * directionX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight) && bricks[i][j] == 1) {
 				bricks[i][j] = 0;
-				if (!hitTest(ballX + ballSpeed * directionX, ballY, brickX, brickY, brickWidth, brickHeight)) {
-					directionY = -directionY;
-				}
-				if (!hitTest(ballX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight)) {
+				if (hitTest(ballX + ballSpeed * directionX, ballY, brickX, brickY, brickWidth, brickHeight)) {
 					directionX = -directionX;
+				}
+				if (hitTest(ballX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight)) {
+					directionY = -directionY;
 				}
 				return 1;
 			}
@@ -253,6 +259,9 @@ int hitBrick() {
 */
 void moveBall() {
 	if (hitBrick()) {
+		return;
+	}
+	if (hitPaddle()) {
 		return;
 	}
 	if (ballX + (ballSpeed * directionX) - ballRadius < fieldX) {
@@ -273,10 +282,6 @@ void moveBall() {
 	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
 		/* TODO: Bottom edge lose life and insert new ball */
 		ballY += fieldY + fieldHeight - ballY - ballRadius;
-		directionY = -directionY;
-	}
-	else if (directionY > 0 && hitPaddle(ballX, ballY + (ballSpeed * directionY) + ballRadius)) {
-		ballY += paddleY - ballY - ballRadius;
 		directionY = -directionY;
 	}
 	else {
