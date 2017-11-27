@@ -1,6 +1,7 @@
 #include "draw.h"
 #include <windows.h>
 #include <math.h>
+#include <string.h>
 #include <GL\glut.h>
 #include <time.h>
 
@@ -15,6 +16,25 @@ void drawRect(int x, int y, int width, int height) {
 	glVertex2f((float)width, 0.0f); // Draw upper-right point
 	glVertex2f((float)width, (float)height); // Draw lower-right point
 	glVertex2f(0.0f, (float)height); // Draw lower-left point
+	glEnd(); // End drawing
+	glPopMatrix(); // Load saved state of clipping area
+}
+
+/* Draw a unfilled rectangle of given width and height.
+** x and y are the coordinates of the upper-left corner.
+*/
+void drawLineRect(int x, int y, int width, int height) {
+	glPushMatrix(); // Save current state of clipping area
+	glTranslatef((float)x, (float)y, 0.0f); // Translate clipping area to (x, y)
+	glBegin(GL_LINES); // Set openGL to use lines
+	glVertex2f(0.0f, 0.0f); // Draw upper-left point
+	glVertex2f((float)width + 1, 0.0f); // Draw upper-right point
+	glVertex2f((float)width, 0.0f); // Draw upper-right point
+	glVertex2f((float)width, (float)height); // Draw lower-right point
+	glVertex2f((float)width, (float)height); // Draw lower-right point
+	glVertex2f(0.0f, (float)height); // Draw lower-left point
+	glVertex2f(0.0f, (float)height); // Draw lower-left point
+	glVertex2f(0.0f, 0.0f); // Draw upper-left point
 	glEnd(); // End drawing
 	glPopMatrix(); // Load saved state of clipping area
 }
@@ -35,6 +55,22 @@ void drawCirc(int x, int y, int radius) {
 	}
 	glEnd(); // End drawing
 	glPopMatrix(); // Load saved state of clipping area
+}
+
+/* Draw text at the give coordinates.
+** x and y are the top left corner of the first character.
+*/
+void drawStrokeText(int x, int y, char *string) {
+	int len = strlen(string);
+	glPushMatrix();
+	glTranslatef((float)x, (float)y + 10.0f, 0.0f);
+	glScalef(0.1f, -0.1f, 0.0f);
+
+	for (int i = 0; i < len; i++)
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, string[i]);
+	}
+	glPopMatrix();
 }
 
 /* Set the color to use for drawing the next elements
