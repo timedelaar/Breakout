@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdio.h>
 #include <windows.h>
 #include <GL\glut.h>
 #include "draw.h"
@@ -10,10 +12,10 @@ const char *title = "Breakout";
 const int windowWidth = 960;
 const int windowHeight = 480;
 
-const int fieldWidth = 700;
-const int fieldHeight = 440;
 const int fieldX = 20;
 const int fieldY = 20;
+const int fieldWidth = 700;
+const int fieldHeight = 440;
 
 const int msPerFrame = 1000 / FPS;
 
@@ -28,6 +30,9 @@ float directionY = 0.5;
 int ballX = 200;
 int ballY = 300;
 
+int score = 0;
+int lives = 3;
+
 void initializeGLUT(int argc, char **argv);
 void init();
 void paint();
@@ -35,6 +40,7 @@ void resize(GLsizei width, GLsizei height);
 void gameMain(int value);
 void keyHandler(int key, int x, int y);
 void specialKeyHandler(int key, int x, int y);
+void fillScoreboard();
 void moveBall();
 void movePaddle(int direction);
 
@@ -59,6 +65,7 @@ void initializeGLUT(int argc, char **argv) {
 */
 void init() {
 	setBackgroundColor(BLACK);
+	/* TODO: Start with random ball position and direction? */
 }
 
 /* Paint function
@@ -69,10 +76,13 @@ void paint() {
 
 	/* Draw all objects here */
 	setColor(RED);
-	drawLineRect(fieldX, fieldY, fieldWidth, fieldHeight);
-	drawRect(paddlePos, 400, paddleWidth, 20);
+	drawLineRect(fieldX - 5, fieldY - 5, windowWidth - fieldX - 10, windowHeight - fieldY - 10);
+	drawLineRect(fieldX, fieldY, fieldWidth, fieldHeight); // Field edge
+	drawLineRect(fieldX + fieldWidth + 5, fieldY, windowWidth - fieldX - fieldWidth - 25, fieldHeight); // Scoreboard
+	fillScoreboard(); // Draw text in scoreboard
+	drawRect(paddlePos, 400, paddleWidth, 20); // Paddle
 	setColor(BLUE);
-	drawCirc(ballX, ballY, ballRadius);
+	drawCirc(ballX, ballY, ballRadius); // Ball
 
 	glutSwapBuffers(); // Swap front and back buffer
 }
@@ -136,6 +146,14 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+void fillScoreboard() {
+	char temp[100];
+	sprintf(temp, "Score: %d", score);
+	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 10, temp);
+	sprintf(temp, "Lives: %d", lives);
+	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 30, temp);
+}
+
 /* Move ball in x and y direction.
 ** Checks if next move is outside of bounds. If that is the case
 ** add x and y to position ball edge at field edge and reverse direction.
@@ -158,6 +176,7 @@ void moveBall() {
 		directionY = -directionY;
 	}
 	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
+		/* TODO: Bottom edge lose life and insert new ball */
 		ballY += fieldY + fieldHeight - ballY - ballRadius;
 		directionY = -directionY;
 	}

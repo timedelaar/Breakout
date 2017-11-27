@@ -1,6 +1,7 @@
 #include "draw.h"
 #include <windows.h>
 #include <math.h>
+#include <string.h>
 #include <GL\glut.h>
 
 /* Draw a rectangle of given width and height.
@@ -53,6 +54,22 @@ void drawCirc(int x, int y, int radius) {
 	}
 	glEnd(); // End drawing
 	glPopMatrix(); // Load saved state of clipping area
+}
+
+/* Draw text at the give coordinates.
+** x and y are the top left corner of the first character.
+*/
+void drawStrokeText(int x, int y, char *string) {
+	int len = strlen(string);
+	glPushMatrix();
+	glTranslatef((float)x, (float)y + 10.0f, 0.0f);
+	glScalef(0.1f, -0.1f, 0.0f);
+
+	for (int i = 0; i < len; i++)
+	{
+		glutStrokeCharacter(GLUT_STROKE_ROMAN, string[i]);
+	}
+	glPopMatrix();
 }
 
 /* Set the color to use for drawing the next elements
