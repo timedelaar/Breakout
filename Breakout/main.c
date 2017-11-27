@@ -55,6 +55,7 @@ int hitPaddle(int ballX, int ballY);
 int hitBrick(int ballX, int ballY);
 void moveBall();
 void movePaddle(int direction);
+int sign(int val);
 
 /* Initialize GLUT function
 ** Initializes GLUT, sets defaults and registers callbacks.
@@ -195,24 +196,51 @@ void fillScoreboard() {
 	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 30, temp);
 }
 
-int hitPaddle(int ballX, int ballY) {
-	if (ballY >= paddleY && ballY <= paddleY + paddleHeight && ballX >= paddleX && ballX < paddleX + paddleWidth) {
+int hitTest(int ballX, int ballY, int brickX, int brickY, int brickWidth, int brickHeight) {
+	int circleDistanceX = abs(ballX - (brickX + brickWidth / 2));
+	int circleDistanceY = abs(ballY - (brickY + brickHeight / 2));
+
+	if (circleDistanceX > (brickWidth / 2 + ballRadius))
+		return 0;
+	if (circleDistanceY > (brickHeight / 2 + ballRadius))
+		return 0;
+
+	if (circleDistanceX <= (brickWidth / 2))
+		return 1;
+	if (circleDistanceY <= (brickHeight / 2))
+		return 1;
+
+	int cornerDistance_sq = (circleDistanceY - brickWidth / 2) ^ 2 +
+		(circleDistanceY - brickHeight / 2) ^ 2;
+
+	if (cornerDistance_sq <= (ballRadius ^ 2))
+		return 1;
+
+	return 0;
+}
+
+int hitPaddle() {
+	if (hitTest(ballX, ballY, paddleX, paddleY, paddleWidth, paddleHeight)) {
 		return 1;
 	}
 	return 0;
 }
 
-int hitBrick(int ballX, int ballY) {
+int hitBrick() {
 	for (int i = ROWS - 1; i >= 0; i--) {
-		if (ballY >= fieldY + i * brickHeight + 1 && ballY <= fieldY + i * brickHeight + brickHeight + 1) {
-			for (int j = 0; j < COLS; j++) {
-				int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
-				if (ballX >= brickX && ballX <= brickX + brickWidth && bricks[i][j] == 1) {
-					bricks[i][j] = 0;
-					return 1;
+		int brickY = fieldY + i * brickHeight + 1;
+		for (int j = 0; j < COLS; j++) {
+			int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
+			if (hitTest(ballX + ballSpeed * directionX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight) && bricks[i][j] == 1) {
+				bricks[i][j] = 0;
+				if (!hitTest(ballX + ballSpeed * directionX, ballY, brickX, brickY, brickWidth, brickHeight)) {
+					directionY = -directionY;
 				}
+				if (!hitTest(ballX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight)) {
+					directionX = -directionX;
+				}
+				return 1;
 			}
-			return 0;
 		}
 	}
 	return 0;
@@ -224,6 +252,9 @@ int hitBrick(int ballX, int ballY) {
 ** Else just move ball required amount.
 */
 void moveBall() {
+	if (hitBrick()) {
+		return;
+	}
 	if (ballX + (ballSpeed * directionX) - ballRadius < fieldX) {
 		ballX -= fieldX - ballX - ballRadius;
 		directionX = -directionX;
@@ -242,9 +273,6 @@ void moveBall() {
 	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
 		/* TODO: Bottom edge lose life and insert new ball */
 		ballY += fieldY + fieldHeight - ballY - ballRadius;
-		directionY = -directionY;
-	}
-	else if (directionY < 0 && hitBrick(ballX, ballY + (ballSpeed * directionY) - ballRadius)) {
 		directionY = -directionY;
 	}
 	else if (directionY > 0 && hitPaddle(ballX, ballY + (ballSpeed * directionY) + ballRadius)) {
@@ -270,4 +298,8 @@ void movePaddle(int direction) {
 	else {
 		paddleX += paddleSpeed * direction;
 	}
+}
+
+int sign(int val) {
+	return (0 < val) - (0 > val);
 }
