@@ -25,6 +25,9 @@ int paddleX = 200;
 const int paddleY = 400;
 int paddleSpeed = 15;
 
+const int brickWidth = 50;
+const int brickHeight = 20;
+
 int ballRadius = 5;
 int ballSpeed = 4;
 float directionX = 0.5;
@@ -156,21 +159,20 @@ int main(int argc, char** argv) {
 */
 void drawBricks()
 {
-	int fieldX=20; // x coordinate of  starting point of a brick
-	int fieldY=20; // y coordinate of starting point of a brick
+	int brickX = fieldX; // x coordinate of  starting point of a brick
+	int brickY = fieldY; // y coordinate of starting point of a brick
 
 	for (int i = 0; i < 7;i++)
 	{
 		// if statement gives the zig-zag pattern for bricks placement
-		if (i % 2 == 0) fieldX = 0;
-		else fieldX = 20;
+		brickX = (i % 2) * 20;
 
 		setColor(i % 3 + 1, i % 2, i % 1); // sets different colors for lines
 
-		for (; fieldX < 700; fieldX += 70)
-			drawRect((fieldX )+ 20, (fieldY) +2, 50, 20); // x+10 gives the vertical space between the bricks
-		fieldY += 20;
-	fieldX += 5; // horizontal space between lines 
+		for (; brickX < 700; brickX += 70)
+			drawRect(brickX + fieldX, brickY + 1, brickWidth, brickHeight); // x+10 gives the vertical space between the bricks
+		brickY += brickHeight;
+		brickX += 5; // horizontal space between lines 
 	}
 
 }
@@ -191,9 +193,9 @@ int hitPaddle(int ballX, int ballY) {
 
 int hitBrick(int ballX, int ballY) {
 	for (int i = 6; i >= 0; i--) {
-		if (ballY >= 25 * i + 2 && ballY <= 25 * i + 22) {
+		if (ballY >= brickHeight * i + fieldY + 1 && ballY <= brickHeight * i + fieldY + brickHeight + 1) {
 			for (int j = 0; j < 12; j++) {
-				if (ballX >= j * 70 + 10 && ballX <= j * 70 + 70) {
+				if (ballX >= j * (brickWidth + 25) + fieldX && ballX <= j * (brickWidth + 25) + fieldX + brickWidth) {
 					return 1;
 				}
 			}
