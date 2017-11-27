@@ -18,6 +18,25 @@ void drawRect(int x, int y, int width, int height) {
 	glPopMatrix(); // Load saved state of clipping area
 }
 
+/* Draw a unfilled rectangle of given width and height.
+** x and y are the coordinates of the upper-left corner.
+*/
+void drawLineRect(int x, int y, int width, int height) {
+	glPushMatrix(); // Save current state of clipping area
+	glTranslatef((float)x, (float)y, 0.0f); // Translate clipping area to (x, y)
+	glBegin(GL_LINES); // Set openGL to use lines
+	glVertex2f(0.0f, 0.0f); // Draw upper-left point
+	glVertex2f((float)width + 1, 0.0f); // Draw upper-right point
+	glVertex2f((float)width, 0.0f); // Draw upper-right point
+	glVertex2f((float)width, (float)height); // Draw lower-right point
+	glVertex2f((float)width, (float)height); // Draw lower-right point
+	glVertex2f(0.0f, (float)height); // Draw lower-left point
+	glVertex2f(0.0f, (float)height); // Draw lower-left point
+	glVertex2f(0.0f, 0.0f); // Draw upper-left point
+	glEnd(); // End drawing
+	glPopMatrix(); // Load saved state of clipping area
+}
+
 /* Draw a circle of given radius.
 ** x and y are the coordinates of the center.
 */

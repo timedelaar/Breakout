@@ -9,14 +9,22 @@
 const char *title = "Breakout";
 const int windowWidth = 960;
 const int windowHeight = 480;
+
+const int fieldWidth = 700;
+const int fieldHeight = 440;
+const int fieldX = 20;
+const int fieldY = 20;
+
 const int msPerFrame = 1000 / FPS;
 
 int paddleWidth = 50;
 int paddlePos = 200;
 int paddleSpeed = 15;
 
-int ballSpeedX = 2;
-int ballSpeedY = 2;
+int ballRadius = 5;
+int ballSpeed = 4;
+float directionX = 0.5;
+float directionY = 0.5;
 int ballX = 200;
 int ballY = 300;
 
@@ -27,6 +35,8 @@ void resize(GLsizei width, GLsizei height);
 void gameMain(int value);
 void keyHandler(int key, int x, int y);
 void specialKeyHandler(int key, int x, int y);
+void moveBall();
+void movePaddle(int direction);
 
 /* Initialize GLUT function
 ** Initializes GLUT, sets defaults and registers callbacks.
@@ -59,9 +69,10 @@ void paint() {
 
 	/* Draw all objects here */
 	setColor(RED);
+	drawLineRect(fieldX, fieldY, fieldWidth, fieldHeight);
 	drawRect(paddlePos, 400, paddleWidth, 20);
 	setColor(BLUE);
-	drawCirc(ballX, ballY, 5);
+	drawCirc(ballX, ballY, ballRadius);
 
 	glutSwapBuffers(); // Swap front and back buffer
 }
@@ -84,13 +95,7 @@ void resize(GLsizei width, GLsizei height) {
 void gameMain(int value) {
 	/* Input game logic here */
 
-	if (ballX + ballSpeedX > windowWidth || ballX + ballSpeedX < 0)
-		ballSpeedX = -ballSpeedX;
-	ballX += ballSpeedX;
-	if (ballY + ballSpeedY > windowHeight || ballY + ballSpeedY < 0)
-		ballSpeedY = -ballSpeedY;
-	ballY += ballSpeedY;
-
+	moveBall();
 
 	glutPostRedisplay(); // Redraw screen
 	glutTimerFunc(msPerFrame, gameMain, 0); // Set timer to call this function again
@@ -115,12 +120,10 @@ void keyHandler(int key, int x, int y) {
 void specialKeyHandler(int key, int x, int y) {
 	switch (key) {
 	case GLUT_KEY_RIGHT:
-		if (paddlePos + paddleWidth < windowWidth)
-			paddlePos += paddleSpeed;
+		movePaddle(1);
 		break;
 	case GLUT_KEY_LEFT:
-		if (paddlePos > 0)
-			paddlePos -= paddleSpeed;
+		movePaddle(-1);
 		break;
 	}
 }
@@ -131,4 +134,50 @@ int main(int argc, char** argv) {
 	init(); // Initialize game variables
 	glutMainLoop(); // Enter the event-processing loop
 	return 0;
+}
+
+/* Move ball in x and y direction.
+** Checks if next move is outside of bounds. If that is the case
+** add x and y to position ball edge at field edge and reverse direction.
+** Else just move ball required amount.
+*/
+void moveBall() {
+	if (ballX + (ballSpeed * directionX) - ballRadius < fieldX) {
+		ballX -= fieldX - ballX - ballRadius;
+		directionX = -directionX;
+	}
+	else if (ballX + (ballSpeed * directionX) + ballRadius > fieldX + fieldWidth) {
+		ballX += fieldX + fieldWidth - ballX - ballRadius;
+		directionX = -directionX;
+	}
+	else {
+		ballX += ballSpeed * directionX;
+	}
+	if (ballY + (ballSpeed * directionY) - ballRadius < fieldY) {
+		ballY -= fieldY - ballY - ballRadius;
+		directionY = -directionY;
+	}
+	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
+		ballY += fieldY + fieldHeight - ballY - ballRadius;
+		directionY = -directionY;
+	}
+	else {
+		ballY += ballSpeed * directionY;
+	}
+}
+
+/* Move paddle in given direction. 1 for right, -1 for
+** left. If next move is outside of bounds, place paddle
+** on field edge.
+*/
+void movePaddle(int direction) {
+	if (paddlePos + (paddleSpeed * direction) < fieldX) {
+		paddlePos = fieldX;
+	}
+	else if (paddlePos + paddleWidth + (paddleSpeed * direction) > fieldX + fieldWidth) {
+		paddlePos = fieldX + fieldWidth - paddleWidth;
+	}
+	else {
+		paddlePos += paddleSpeed * direction;
+	}
 }
