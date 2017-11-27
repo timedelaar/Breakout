@@ -20,7 +20,9 @@ const int fieldHeight = 440;
 const int msPerFrame = 1000 / FPS;
 
 int paddleWidth = 50;
-int paddlePos = 200;
+const int paddleHeight = 20;
+int paddleX = 200;
+const int paddleY = 400;
 int paddleSpeed = 15;
 
 int ballRadius = 5;
@@ -41,6 +43,8 @@ void gameMain(int value);
 void keyHandler(int key, int x, int y);
 void specialKeyHandler(int key, int x, int y);
 void fillScoreboard();
+int hitPaddle(int ballX, int ballY);
+int hitBrick(int ballX, int ballY);
 void moveBall();
 void movePaddle(int direction);
 
@@ -82,7 +86,7 @@ void paint() {
 	drawLineRect(fieldX, fieldY, fieldWidth, fieldHeight); // Field edge
 	drawLineRect(fieldX + fieldWidth + 5, fieldY, windowWidth - fieldX - fieldWidth - 25, fieldHeight); // Scoreboard
 	fillScoreboard(); // Draw text in scoreboard
-	drawRect(paddlePos, 400, paddleWidth, 20); // Paddle
+	drawRect(paddleX, paddleY, paddleWidth, paddleHeight); // Paddle
 	setColor(BLUE);
 	drawCirc(ballX, ballY, ballRadius); // Ball
 
@@ -156,6 +160,27 @@ void fillScoreboard() {
 	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 30, temp);
 }
 
+int hitPaddle(int ballX, int ballY) {
+	if (ballY >= paddleY && ballY <= paddleY + paddleHeight && ballX >= paddleX && ballX < paddleX + paddleWidth) {
+		return 1;
+	}
+	return 0;
+}
+
+int hitBrick(int ballX, int ballY) {
+	for (int i = 6; i >= 0; i--) {
+		if (ballY >= 25 * i + 2 && ballY <= 25 * i + 22) {
+			for (int j = 0; j < 12; j++) {
+				if (ballX >= j * 70 + 10 && ballX <= j * 70 + 70) {
+					return 1;
+				}
+			}
+			return 0;
+		}
+	}
+	return 0;
+}
+
 /* Move ball in x and y direction.
 ** Checks if next move is outside of bounds. If that is the case
 ** add x and y to position ball edge at field edge and reverse direction.
@@ -182,6 +207,13 @@ void moveBall() {
 		ballY += fieldY + fieldHeight - ballY - ballRadius;
 		directionY = -directionY;
 	}
+	else if (directionY < 0 && hitBrick(ballX, ballY + (ballSpeed * directionY) - ballRadius)) {
+		directionY = -directionY;
+	}
+	else if (directionY > 0 && hitPaddle(ballX, ballY + (ballSpeed * directionY) + ballRadius)) {
+		ballY += paddleY - ballY - ballRadius;
+		directionY = -directionY;
+	}
 	else {
 		ballY += ballSpeed * directionY;
 	}
@@ -192,13 +224,13 @@ void moveBall() {
 ** on field edge.
 */
 void movePaddle(int direction) {
-	if (paddlePos + (paddleSpeed * direction) < fieldX) {
-		paddlePos = fieldX;
+	if (paddleX + (paddleSpeed * direction) < fieldX) {
+		paddleX = fieldX;
 	}
-	else if (paddlePos + paddleWidth + (paddleSpeed * direction) > fieldX + fieldWidth) {
-		paddlePos = fieldX + fieldWidth - paddleWidth;
+	else if (paddleX + paddleWidth + (paddleSpeed * direction) > fieldX + fieldWidth) {
+		paddleX = fieldX + fieldWidth - paddleWidth;
 	}
 	else {
-		paddlePos += paddleSpeed * direction;
+		paddleX += paddleSpeed * direction;
 	}
 }
