@@ -71,7 +71,12 @@ void initializeGLUT(int argc, char **argv) {
 	glutKeyboardFunc(keyHandler); // Register key press callback handler for normal keys (A - Z, ESC)
 	glutSpecialFunc(specialKeyHandler); // Register key press callback handler for special keys (right, left, up, down, F..)
 	glutTimerFunc(0, gameMain, 0); // Register timer function callback handler for game logic
+	glRasterPos2f(4.0f, 2.0f);
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 50);
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 48);
+	glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, 48);
 }
+
 
 /* Initialize function 
 ** Set initial state of game.
@@ -196,6 +201,10 @@ void fillScoreboard() {
 	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 30, temp);
 }
 
+
+
+
+
 int hitTest(int ballX, int ballY, int brickX, int brickY, int brickWidth, int brickHeight) {
 	int circleDistanceX = abs(ballX - (brickX + brickWidth / 2));
 	int circleDistanceY = abs(ballY - (brickY + brickHeight / 2));
@@ -287,6 +296,7 @@ void moveBall() {
 	else {
 		ballY += ballSpeed * directionY;
 	}
+
 }
 
 /* Move paddle in given direction. 1 for right, -1 for
