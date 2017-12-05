@@ -1,5 +1,8 @@
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <math.h>
 #include <windows.h>
 #include <GL\glut.h>
 #include "draw.h"
@@ -23,9 +26,9 @@ const int fieldHeight = 440;
 const int msPerFrame = 1000 / FPS;
 
 int paddleWidth = 50;
-const int paddleHeight = 20;
-int paddleX = 200;
-const int paddleY = 400;
+const int paddleHeight = 10;
+int paddleX = 0;
+int paddleY;
 int paddleSpeed = 15;
 
 const int brickWidth = 50;
@@ -33,11 +36,11 @@ const int brickHeight = 20;
 int bricks[ROWS][COLS];
 
 int ballRadius = 5;
-int ballSpeed = 4;
+int ballSpeed = 2;
 float directionX = 0.5;
 float directionY = 0.5;
-int ballX = 200;
-int ballY = 300;
+float ballX = 200;
+float ballY = 200;
 
 int score = 0;
 int lives = 3;
@@ -78,12 +81,17 @@ void initializeGLUT(int argc, char **argv) {
 */
 void init() {
 	setBackgroundColor(BLACK);
-	/* TODO: Start with random ball position and direction? */
+	paddleX = fieldWidth / 2 - paddleWidth;
+	paddleY = fieldHeight - paddleHeight;
+	srand(time(NULL));
+	ballX = rand() % fieldWidth + fieldX;
+	directionX = ((double)rand() / (double)RAND_MAX) * 2 - 1;
+	directionY = 1;
 	for (int i = 0; i < ROWS; i++)
 	{
 		for (int j = 0; j < COLS; j++)
 		{
-			bricks[i][j] = 1;
+			bricks[i][j] = rand() % 4 + 1;
 		}
 	}
 }
@@ -176,12 +184,26 @@ void drawBricks()
 		// if statement gives the zig-zag pattern for bricks placement
 		//brickX = (i % 2) * 20;
 
-		setColor(i % 3 + 1, i % 2, i % 1); // sets different colors for lines
+		//setColor(i % 3 + 1, i % 2, i % 1); // sets different colors for lines
 
 		for (int j = 0; j < COLS; j++) {
-			if (bricks[i][j] == 1) {
-				int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
-				int brickY = fieldY + i * brickHeight;
+			if (bricks[i][j] > 0) {
+				switch (bricks[i][j]) {
+				case 1:
+					setColor(RED);
+					break;
+				case 2:
+					setColor(GREEN);
+					break;
+				case 3:
+					setColor(BLUE);
+					break;
+				case 4:
+					setColor(YELLOW);
+					break;
+				}
+				int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2 + 20;
+				int brickY = fieldY + i * brickHeight + i * 5;
 				drawRect(brickX, brickY + 1, brickWidth, brickHeight); // x+10 gives the vertical space between the bricks
 			}
 		}
@@ -227,6 +249,8 @@ int hitPaddle() {
 		if (hitTest(ballX, ballY + ballSpeed * directionY, paddleX, paddleY, paddleWidth, paddleHeight)) {
 			directionY = -directionY;
 		}
+		int distance = ballX - (paddleX + paddleWidth / 2);
+		directionX += distance / (double)paddleWidth;
 		return 1;
 	}
 	return 0;
@@ -234,11 +258,11 @@ int hitPaddle() {
 
 int hitBrick() {
 	for (int i = ROWS - 1; i >= 0; i--) {
-		int brickY = fieldY + i * brickHeight + 1;
+		int brickY = fieldY + i * brickHeight + i * 5 + 1;
 		for (int j = 0; j < COLS; j++) {
-			int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2;
-			if (hitTest(ballX + ballSpeed * directionX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight) && bricks[i][j] == 1) {
-				bricks[i][j] = 0;
+			int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2 + 20;
+			if (hitTest(ballX + ballSpeed * directionX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight) && bricks[i][j] > 0) {
+				bricks[i][j]--;
 				if (hitTest(ballX + ballSpeed * directionX, ballY, brickX, brickY, brickWidth, brickHeight)) {
 					directionX = -directionX;
 				}
@@ -264,6 +288,7 @@ void moveBall() {
 	if (hitPaddle()) {
 		return;
 	}
+
 	if (ballX + (ballSpeed * directionX) - ballRadius < fieldX) {
 		ballX -= fieldX - ballX - ballRadius;
 		directionX = -directionX;
@@ -275,6 +300,7 @@ void moveBall() {
 	else {
 		ballX += ballSpeed * directionX;
 	}
+
 	if (ballY + (ballSpeed * directionY) - ballRadius < fieldY) {
 		ballY -= fieldY - ballY - ballRadius;
 		directionY = -directionY;
