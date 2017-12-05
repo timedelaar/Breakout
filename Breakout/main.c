@@ -141,13 +141,12 @@ void resize(GLsizei width, GLsizei height) {
 ** and redraw the screen.
 */
 void gameMain(int value) {
-	/* Input game logic here */
-	currentTime = clock();
-	moveBall();
+	currentTime = clock(); // Get current clock
 	if ((currentTime - speedTimer) / CLOCKS_PER_SEC > increaseTime) {
 		speedTimer = currentTime;
 		directionY += speedIncrease * sign(directionY);
 	}
+	moveBall();
 
 	glutPostRedisplay(); // Redraw screen
 	glutTimerFunc(msPerFrame, gameMain, 0); // Set timer to call this function again
@@ -193,11 +192,6 @@ void drawBricks()
 {
 	for (int i = 0; i < ROWS;i++)
 	{
-		// if statement gives the zig-zag pattern for bricks placement
-		//brickX = (i % 2) * 20;
-
-		//setColor(i % 3 + 1, i % 2, i % 1); // sets different colors for lines
-
 		for (int j = 0; j < COLS; j++) {
 			if (bricks[i][j] > 0) {
 				switch (bricks[i][j]) {
@@ -222,6 +216,7 @@ void drawBricks()
 	}
 
 }
+
 void fillScoreboard() {
 	char temp[100];
 	sprintf(temp, "Score: %d", score);
@@ -229,10 +224,6 @@ void fillScoreboard() {
 	sprintf(temp, "Lives: %d", lives);
 	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 30, temp);
 }
-
-
-
-
 
 int hitTest(int ballX, int ballY, int brickX, int brickY, int brickWidth, int brickHeight) {
 	int circleDistanceX = abs(ballX - (brickX + brickWidth / 2));
@@ -325,7 +316,6 @@ void moveBall() {
 		directionY = -directionY;
 	}
 	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
-		/* TODO: Bottom edge lose life and insert new ball */
 		if (lives == 1)
 		{
 			MessageBox(NULL, (LPCWSTR)L"Press OK!", (LPCWSTR)L"Game Over", MB_OK);
