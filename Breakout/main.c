@@ -14,6 +14,11 @@
 
 #define FPS 60
 
+long speedTimer;
+long currentTime;
+int increaseTime = 60; // seconds
+double speedIncrease = 0.2;
+
 const char *title = "Breakout";
 const int windowWidth = 960;
 const int windowHeight = 480;
@@ -82,6 +87,7 @@ void initializeGLUT(int argc, char **argv) {
 ** Set initial state of game.
 */
 void init() {
+	speedTimer = clock();
 	setBackgroundColor(BLACK);
 	paddleX = fieldWidth / 2 - paddleWidth;
 	paddleY = fieldHeight - paddleHeight;
@@ -136,8 +142,12 @@ void resize(GLsizei width, GLsizei height) {
 */
 void gameMain(int value) {
 	/* Input game logic here */
-
+	currentTime = clock();
 	moveBall();
+	if ((currentTime - speedTimer) / CLOCKS_PER_SEC > increaseTime) {
+		speedTimer = currentTime;
+		directionY += speedIncrease * sign(directionY);
+	}
 
 	glutPostRedisplay(); // Redraw screen
 	glutTimerFunc(msPerFrame, gameMain, 0); // Set timer to call this function again
@@ -255,8 +265,10 @@ int hitPaddle() {
 		if (hitTest(ballX, ballY + ballSpeed * directionY, paddleX, paddleY, paddleWidth, paddleHeight)) {
 			directionY = -directionY;
 		}
-		int distance = ballX - (paddleX + paddleWidth / 2);
-		directionX += distance / (double)paddleWidth;
+		if (fabs(directionX) < 2.5) {
+			int distance = ballX - (paddleX + paddleWidth / 2);
+			directionX += distance / (double)paddleWidth;
+		}
 		return 1;
 	}
 	return 0;
@@ -289,7 +301,6 @@ int hitBrick() {
 */
 void moveBall() {
 	if (hitBrick()) {
-
 		score += 5;
 		return;
 	}
@@ -315,7 +326,7 @@ void moveBall() {
 	}
 	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
 		/* TODO: Bottom edge lose life and insert new ball */
-		if (!(lives-1))
+		if (lives == 1)
 		{
 			MessageBox(NULL, (LPCWSTR)L"Press OK!", (LPCWSTR)L"Game Over", MB_OK);
 			exit(1);
@@ -323,7 +334,7 @@ void moveBall() {
 		else
 		{
 			// initialize ball position to over-paddle;
-			// decreaze life
+			// decrease life
 			ballY = paddleY - paddleHeight;
 			ballX = (paddleX + paddleWidth/2);
 			lives--;
