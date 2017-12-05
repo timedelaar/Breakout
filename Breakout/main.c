@@ -74,7 +74,9 @@ void initializeGLUT(int argc, char **argv) {
 	glutKeyboardFunc(keyHandler); // Register key press callback handler for normal keys (A - Z, ESC)
 	glutSpecialFunc(specialKeyHandler); // Register key press callback handler for special keys (right, left, up, down, F..)
 	glutTimerFunc(0, gameMain, 0); // Register timer function callback handler for game logic
+	
 }
+
 
 /* Initialize function 
 ** Set initial state of game.
@@ -218,6 +220,10 @@ void fillScoreboard() {
 	drawStrokeText(fieldX + fieldWidth + 15, fieldY + 30, temp);
 }
 
+
+
+
+
 int hitTest(int ballX, int ballY, int brickX, int brickY, int brickWidth, int brickHeight) {
 	int circleDistanceX = abs(ballX - (brickX + brickWidth / 2));
 	int circleDistanceY = abs(ballY - (brickY + brickHeight / 2));
@@ -283,6 +289,8 @@ int hitBrick() {
 */
 void moveBall() {
 	if (hitBrick()) {
+
+		score += 5;
 		return;
 	}
 	if (hitPaddle()) {
@@ -307,12 +315,33 @@ void moveBall() {
 	}
 	else if (ballY + (ballSpeed * directionY) + ballRadius > fieldY + fieldHeight) {
 		/* TODO: Bottom edge lose life and insert new ball */
-		ballY += fieldY + fieldHeight - ballY - ballRadius;
+		if (!(lives-1))
+		{
+			MessageBox(NULL, (LPCWSTR)L"Press OK!", (LPCWSTR)L"Game Over", MB_OK);
+			exit(1);
+		}
+		else
+		{
+			// initialize ball position to over-paddle;
+			// decreaze life
+			ballY = paddleY - paddleHeight;
+			ballX = (paddleX + paddleWidth/2);
+			lives--;
+			char ar[100]=" ";
+			itoa(lives, ar, 10);
+			strcat(ar, " lives left!");
+
+			MessageBox(0, (LPCWSTR)L"Press RETRY", (LPCWSTR)L"DEAD!", 5);
+
+		}
+
+		//ballY += fieldY + fieldHeight - ballY - ballRadius;
 		directionY = -directionY;
 	}
 	else {
 		ballY += ballSpeed * directionY;
 	}
+
 }
 
 /* Move paddle in given direction. 1 for right, -1 for
