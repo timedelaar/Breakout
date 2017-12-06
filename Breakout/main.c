@@ -87,6 +87,7 @@ void initializeGLUT(int argc, char **argv) {
 ** Set initial state of game.
 */
 void init() {
+	int i, j;
 	speedTimer = clock();
 	setBackgroundColor(BLACK);
 	paddleX = fieldWidth / 2 - paddleWidth;
@@ -95,9 +96,9 @@ void init() {
 	ballX = rand() % fieldWidth + fieldX;
 	directionX = ((double)rand() / (double)RAND_MAX) * 2 - 1;
 	directionY = 1;
-	for (int i = 0; i < ROWS; i++)
+	for (i = 0; i < ROWS; i++)
 	{
-		for (int j = 0; j < COLS; j++)
+		for (j = 0; j < COLS; j++)
 		{
 			bricks[i][j] = rand() % 4 + 1;
 		}
@@ -190,9 +191,10 @@ int main(int argc, char** argv) {
 */
 void drawBricks()
 {
-	for (int i = 0; i < ROWS;i++)
+	int i, j, brickX, brickY;
+	for (i = 0; i < ROWS;i++)
 	{
-		for (int j = 0; j < COLS; j++) {
+		for (j = 0; j < COLS; j++) {
 			if (bricks[i][j] > 0) {
 				switch (bricks[i][j]) {
 				case 1:
@@ -208,8 +210,8 @@ void drawBricks()
 					setColor(YELLOW);
 					break;
 				}
-				int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2 + 20;
-				int brickY = fieldY + i * brickHeight + i * 5;
+				brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2 + 20;
+				brickY = fieldY + i * brickHeight + i * 5;
 				drawRect(brickX, brickY + 1, brickWidth, brickHeight); // x+10 gives the vertical space between the bricks
 			}
 		}
@@ -266,10 +268,11 @@ int hitPaddle() {
 }
 
 int hitBrick() {
-	for (int i = ROWS - 1; i >= 0; i--) {
-		int brickY = fieldY + i * brickHeight + i * 5 + 1;
-		for (int j = 0; j < COLS; j++) {
-			int brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2 + 20;
+	int i, j, brickX, brickY;
+	for (i = ROWS - 1; i >= 0; i--) {
+		brickY = fieldY + i * brickHeight + i * 5 + 1;
+		for (j = 0; j < COLS; j++) {
+			brickX = fieldX + j * (brickWidth + 15) + (i % 2) * (brickWidth + 15) / 2 + 20;
 			if (hitTest(ballX + ballSpeed * directionX, ballY + ballSpeed * directionY, brickX, brickY, brickWidth, brickHeight) && bricks[i][j] > 0) {
 				bricks[i][j]--;
 				if (hitTest(ballX + ballSpeed * directionX, ballY, brickX, brickY, brickWidth, brickHeight)) {
